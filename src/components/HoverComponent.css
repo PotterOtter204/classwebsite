@@ -1,0 +1,43 @@
+.hover-component {
+  position: absolute; /* or absolute */
+  top: 50%; /* adjust as needed */
+  left: 50%; /* adjust as needed */
+  transform: translate(-50%, -30%);
+  z-index: 1000; /* to ensure it's above other elements */
+  background-color: white; /* or any other color */
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  
+}
+
+.toggle-switch {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Additional styles for form and toggle button */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form button {
+    padding: 10px;
+    background-color: blue;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.form button:hover {
+    background-color: darkblue;
+}

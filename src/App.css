@@ -1,38 +1,117 @@
-.App {
-  text-align: center;
+* {
+	
+	box-sizing: border-box;
+
+}
+html {
+
+}
+@font-face {
+  font-family: "HelveticaNeue";
+  src: url("./fonts/HelveticaNeueMedium.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Inter-Bold";
+  src: url("./fonts/Inter-Bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "InterRegular";
+  src: url("./fonts/Inter-Regular.ttf") format("truetype");
+}
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: scroll;
+
+   height:100%;
 }
 
-.App-logo {
-  height: 40vmin;
+
+html,
+body,
+#__next {
+	height: 100%;
+
+   scroll-behaviour: smooth;
+ 
+}
+
+
+.bottom-padding{
+  padding-bottom: 20px;
+  
+}
+.nav-link-custom{
+  text-decoration: none;
+  color: black;
+  padding-right: 20px;
+}
+.nav-link.disabled {
+  color: #6c757d;
   pointer-events: none;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.full-width-input {
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.editor-controls {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+
+
+}
+.formatted-text {
+  white-space: pre-wrap;
+}
+
+
+
+.terminal {
+  background-color: black;
   color: white;
+  font-family: monospace;
+  font-size: 16px;
+  height: 250px;
+  overflow-y: scroll;
+
+
+
 }
 
-.App-link {
-  color: #61dafb;
+.terminal p:last-child::after {
+  content: "";
+  display: inline-block;
+  height: 1em;
+  vertical-align: bottom;
+  width: 0.6em;
+  animation: cursor 1s infinite;
 }
 
-@keyframes App-logo-spin {
+.terminal input {
+  background-color: black;
+  border: none;
+  color: white;
+  font-family: monospace;
+  font-size: 16px;
+  outline: none;
+ 
+}
+
+@keyframes cursor {
   from {
-    transform: rotate(0deg);
+    opacity: 1;
   }
   to {
-    transform: rotate(360deg);
+    opacity: 0;
   }
+}
+.container {
+  display: flex;
+  width: 100%;
+}
+
+.outerdiv{
+  overflow-y: scroll;
 }

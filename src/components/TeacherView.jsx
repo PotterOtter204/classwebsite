@@ -6,6 +6,7 @@ import { db } from '../firebase-config';
 import "./TeacherView.css"
 
 import { Grid, Card, CardContent, Typography, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 
 export default function TeacherView({user, uid}) {
@@ -66,13 +67,13 @@ function generateRandomString() {
     }
     return result;
 }
-
+console.log(user)
   return (
     <div>Teacher Screen
 
         <Grid container>
             <Grid item xs={12}>
-                <Button href='/createassignment'>Create assignment</Button>
+<Link to="/createassignment" state={{username: user.userName, classes: classes}}>Create assignment</Link>
             </Grid>
             <Grid item xs={12}>
                 <Button onClick={handleNewClass} variant='contained'> Add New Class </Button>

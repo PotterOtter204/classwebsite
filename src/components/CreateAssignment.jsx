@@ -2,6 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { collection, doc, setDoc, arrayUnion } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { Link,useLocation } from "react-router-dom";
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 
 import { db } from '../firebase-config';
 
@@ -12,11 +18,28 @@ const CreateAssignment= () => {
   const [instruction, setInstruction] = useState('');
     const [tests, setTests] = useState('')
     const [startercode, setStarterCode] = useState('')
+const [username ,setUsername] = useState("")
 
+    const [classList, setClassList] = useState([])
+    const location = useLocation();
 
+    const [assignTo, setAssignTo] = React.useState('');
 
+  const handleChange = (event) => {
+    setAssignTo(event.target.value);
+  };
 
-    const [username, setUsername] = useState(null);
+    useEffect(() => {
+      
+      if (location.state) {
+        
+        console.log(location.state.classes)
+        setClassList(location.state.classes);
+        setUsername(location.state.username)
+      } else {
+        console.log('No state');
+      }
+    }, [location]);
 
     
   const handleSubmit = async (e) => {
@@ -51,21 +74,7 @@ const CreateAssignment= () => {
     }
   };
 
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // User is signed in, set the username
-            setUsername(user.displayName || user.email); // Assuming the username is stored in 'displayName'
-        } else {
-            // User is signed out
-            setUsername(null);
-        }
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-}, []);
+ 
 
 
 
@@ -76,6 +85,23 @@ const CreateAssignment= () => {
       <label htmlFor="module">Name:</label>
       <input type="text" id="name" className="full-width-input" value={name} onChange={(e) => setName(e.target.value)} />
     </div>
+    <Box sx={{ minWidth: 120 }}>
+    <InputLabel id="demo-simple-select-label">Class to Assign to</InputLabel>
+  <Select
+    labelId="demo-simple-select-label"
+    id="demo-simple-select"
+    value={assignTo}
+    label="Age"
+    onChange={handleChange}
+  >
+    {classList.map(function(data) {
+      return (
+        <div>
+          <MenuItem value={data.className}>{data.className}</MenuItem>
+        </div>
+      )
+    })}
+  </Select></Box>
     <div>
       <label htmlFor="description">Description:</label>
       <input type="text" id="description" className="full-width-input" value={description} onChange={(e) => setDescription(e.target.value)} />

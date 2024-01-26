@@ -47,10 +47,7 @@ export default function App() {
               <Nav.Link href="/teacherview"><FontAwesomeIcon icon={faPerson} className="mr-2"/>  &nbsp;Account</Nav.Link>
               <Nav.Link href="/"><FontAwesomeIcon icon={faLock} className="mr-2" />
               
-            &nbsp;Change Password </Nav.Link>
-           
-            
-        
+            &nbsp;Change Password </Nav.Link> 
               
               
               <Button onClick={sign_out} className="btn btn-primary btn-sm" >Sign Out</Button>:

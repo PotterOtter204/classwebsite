@@ -1,0 +1,14 @@
+.full-width-input {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; /* Monospaced font for better readability */
+    font-size: 14px; /* Comfortable font size */
+    line-height: 1.5; /* Improved line height for readability */
+    background-color: #f5f5f5; /* Light background color */
+    color: #333; /* Dark text color for contrast */
+    padding: 10px; /* Padding inside the textarea */
+    border: 1px solid #ccc; /* Subtle border */
+    border-radius: 4px; /* Optional: rounded corners */
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Ensures padding does not affect the overall width */
+    overflow: auto; /* Ensures scrollbars appear when needed */
+  }
+  

@@ -4,7 +4,8 @@ import ReactDOM from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App';
 import AssignmentView from './components/AssignmentView';
-
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -24,6 +25,9 @@ import AssignWork from './components/AssignWork';
 
 import { useNavigate } from "react-router-dom";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword ,onAuthStateChanged,} from "@firebase/auth";
+import ClassView from "./components/classView";
+import StudentView from "./components/StudentView";
+import EditAssignment from "./components/EditAssignment";
 
 
 function ProtectedRoute({ children }) {
@@ -74,7 +78,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/assignmentform",
-        element: <AssignmentForm />
+        element: <ProtectedRoute><AssignmentForm /></ProtectedRoute>
       }
       ,
       {
@@ -121,7 +125,20 @@ const router = createBrowserRouter([
       {
         path: "/signin",
         element: <AuthComponent />
+      },
+      {
+        path: "/classview",
+        element: <ClassView />
+      },
+      {
+        path: "/studentview",
+        element: <StudentView />
+      },
+      {
+        path: "/editassignment",
+        element: <EditAssignment/>
       }
+      
       
        
        ],
@@ -132,7 +149,9 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
     <RouterProvider router={router} />
+    </LocalizationProvider>
   </React.StrictMode>
 );
 

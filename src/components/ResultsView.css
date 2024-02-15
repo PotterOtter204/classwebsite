@@ -1,0 +1,24 @@
+.resultsView {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 70vw; /* Fixed vw unit */
+    height: 70vh;
+    border: solid;
+    border-radius: 10px;
+    background-color: #fff; /* Solid white background */
+    padding: 20px; /* Added padding */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Added shadow for depth */
+    overflow-y: auto; /* Adds vertical scrollbar if content overflows */
+}
+
+.studentWork {
+    font-family: 'Courier New', Courier, monospace; /* Monospaced font for code */
+    background-color: #f0f0f0; /* Light grey background */
+    border-radius: 5px; /* Rounded corners for the code block */
+    padding: 10px; /* Padding around the code */
+    margin: 10px 0; /* Margin for spacing above and below the code block */
+    white-space: pre-wrap; /* Keeps formatting of whitespace in code */
+    overflow-x: auto; /* Adds horizontal scrollbar if code overflows */
+}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button,Grid, IconButton, Tab, Tabs,CircularProgress } from '@mui/material';
@@ -10,61 +9,124 @@ import 'ace-builds/src-noconflict/theme-monokai';
 import { useLocation } from 'react-router-dom';
 import Instruction from './instruction';
 import { getAssignment } from '../services/getAssignment';
+import SuccessPopup from './SuccessPopup';
+import { useNavigate } from 'react-router-dom';
+import { db } from "../firebase-config";
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import ReactDOM from 'react-dom';
+
+import Editor from '@monaco-editor/react';
 
 
-export default function AssignmentView(props) {
+
+export default function AssignmentView() {
     
-    const [value, setValue] = useState();
-   
+    const [value, setValue] = useState("");
+    const location = useLocation();
     const [socket, setSocket] = useState(null);
     const [output, setOutput] = useState(["Terminal"]);
     const [inputValue, setInputValue] = useState("");
     const [instruction, setInstruction] = useState("")
-  
+    const navigate = useNavigate()
     const inputRef = useRef(null);
   
     const [tabIndex, setTabIndex] = useState(0);
     const [feedback, setFeedback] = useState("")
     const [submitB, setSubmitB] = useState(true)
     const [beenRun, SetBeenRun] = useState(false)
-    const [description, setDescription] = useState("")
-    const location = useLocation();
-  const [module, setModule] = useState('');
-  const [course, setCourse] = useState('');
-  const [next, setNext] = useState("")
-
-  useEffect(() => {
-    console.log('Location:', location);
-    if (location.state) {
-      console.log('State found');
-      setModule(location.state.module);
-      setCourse(location.state.course);
-    } else {
-      console.log('No state');
-    }
-  }, [location]);
-
-  useEffect(() => {
-    if(course.length>0){
-      console.log(course)
-      getPlan()
-    }else{
-      console.log('no course')
-    }
-      
-    
-    
-    
+    const [retryCount, setRetryCount] = useState(0);
+    const maxRetries = 5; // Maximum number of retries
+    const initialRetryDelay = 1000; // Initial retry delay in ms (1 second)
+    const retryMultiplier = 2; // Multiplier for exponential backoff
   
-  }, [course])
+  const [isSocket, setIsSocket] = useState(false);
+
+  const [testPassed, setTestPassed] = useState(false);
+  const [message, setMessage] = useState("")
+  
+ 
+
+  const { assignment, uid} = location.state || {};
+
+
+
+  const editorRef = useRef(null);
+
+  function handleEditorDidMount(editor, monaco) {
+    editorRef.current = editor;
+  }
+  useEffect(() => {
+    
+    if(!socket){
+      setIsSocket(true)
+    }
+
+}, [socket])
+
+  useEffect(() => {
+    
+      getPlan() 
+    
+  }, [assignment])
+
+  async function updateUser(currentValue) {
+    // Reference to the user's document
+    const docRef = doc(db, "users", uid);
+    console.log(currentValue)
+  
+    try {
+      // Get the current document
+      const docSnap = await getDoc(docRef);
+  
+      if (docSnap.exists()) {
+        // Extract assignments list
+        const assignments = docSnap.data().assignments || [];
+        // Find the index of the assignment to update
+        const assignmentIndex = assignments.findIndex(ass => ass.uniqueID === assignment.uniqueID);
+  
+        if (assignmentIndex !== -1) {
+          // Update the specific assignment
+          assignments[assignmentIndex].completed = true;
+          assignments[assignmentIndex].feedback = "All tests passed. Good Job!";
+          assignments[assignmentIndex].studentWork = currentValue;
+
+          console.log(assignments[assignmentIndex])
+  
+          // Prepare the update object
+          const updateObject = {};
+          updateObject[`assignments`] = assignments; // This updates the entire assignments array
+  
+          // Update the document with the modified assignments
+          await updateDoc(docRef, updateObject);
+          console.log("Assignment updated successfully.");
+        } else {
+          console.log("Assignment not found.");
+        }
+      } else {
+        console.log("No such document!");
+      }
+    } catch (error) {
+      console.error("Error updating assignment:", error);
+    }
+  }
 
   async function getPlan(){
-    const planny = await getAssignment(course,module)
-    console.log(planny)
-    setValue(planny.startercode)
-    setInstruction(planny.instruction)
-    setDescription(planny.description)
-    setNext(planny.next)
+    
+    
+    console.log(assignment.language)
+    setInstruction(assignment.instruction)
+
+    if(assignment.completed){
+      setFeedback(assignment.feedback)
+      setTabIndex(1)
+      if(assignment.studentWork.length !== 0){
+        setValue(assignment.studentWork)
+      }
+      
+    }else{
+      setValue(assignment.startercode)
+    }
+    
   }
   
     const handleInputKeyPress = async (event) => {
@@ -80,83 +142,99 @@ export default function AssignmentView(props) {
     };
   
     const handleSubmitPress = () =>{
-      //replace with code message
-      const message = [{role: "system", content:"You are a helpful assistant helping s student learn to code."},
-      {role: "user", content: "you are helping a student learn to code you will be given some code and a description of what that code should contan. If the code matches the description respond with 'Good Job'. If it does not match explain what is missing or what mistakes they made. You may give pseudocode, but no actual code."},
-      {role: "user", content: "Code:"+value+"Description:"+description}
-    ]
-    setSubmitB(false)
-    getData(message)
+
+
+      if (socket) {
+        console.log("socket connection established")
+  
+        socket.send(JSON.stringify({ type: 'submit', data: { userCode: editorRef.current.getValue(), testCode:  assignment.tests, language: assignment.language } }));
+      }else{
+        setMessage("no server connection")
+      }
     }
   
-    async function getData(plan){
-      fetch("/generate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ messages: plan }),
-  })
-    .then(response => response.json())
-    .then(data => {
-      setSubmitB(true)
-      setFeedback(data);
-      setTabIndex(1);
-    })
-    .catch(error => console.error(error));
-  
-  
-    }
+ 
   
     
   
     const handleInputChange = (event) => {
       setInputValue(event.target.value);
     };
-  
-  
+
     useEffect(() => {
-      const ws = new WebSocket('ws://localhost:3001');
+      const connectWebSocket = () => {
+        const ws = new WebSocket('wss://code-teacher-w3zznkfv6a-uc.a.run.app');
   
-      ws.onopen = () => {
-        setSocket(ws);
-      };
-      
+        ws.onopen = () => {
+          console.log("WebSocket connection established");
+          setSocket(ws);
+          setRetryCount(0); // Reset retry count on successful connection
+        };
   
-      ws.onmessage = (event) => {
+        ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
+          ws.close(); // Ensure the socket is closed before retrying
+        };
+  
+        ws.onclose = () => {
+          console.log("WebSocket connection closed");
+          setSocket(null);
+  
+          if (retryCount < maxRetries) {
+            const delay = initialRetryDelay * Math.pow(retryMultiplier, retryCount);
+            setTimeout(() => {
+              console.log(`Attempting to reconnect... (Attempt ${retryCount + 1})`);
+              setRetryCount(retryCount + 1);
+              connectWebSocket(); // Attempt to reconnect
+            }, delay);
+          }
+        };
+  
+        // Existing ws.onmessage handler
+        ws.onmessage = (event) => {
         
-        const { type, data } = JSON.parse(event.data);
-  
-        if (type === 'output') {
-          if( !data.includes("File")){
-            setOutput((prevOutput) => [...prevOutput, data]);
+          const { type, data, testPassed } = JSON.parse(event.data);
+    
+          if (type === 'output') {
+            
+              setOutput((prevOutput) => [...prevOutput, data]);
+           
           }
-          
-          console.log(data)
-        }
-  
-        if (type === 'inputRequest') {
-          console.log("input")
-          inputRef.current.focus();
-        }
-  
-        if (type === 'exit'){
-          console.log("exit code: "+ data)
-          if(data === 0 ){
-            //set submit button to active
+    
+          if (type === 'inputRequest') {
+            console.log("input")
+            inputRef.current.focus();
           }
-        }
-      };
-     
+    
+          if (type === 'exit'){
+            console.log("exit code: "+ data)
+            if(data === 0 ){
+              //set submit button to active
+            }
   
-      ws.onclose = () => {
-        setSocket(null);
+            if(testPassed){
+              setFeedback("All tests passed. Good Job!")
+              setTabIndex(1)
+              setTestPassed(true)
+  
+            }
+            
+          }
+        };
+  
+        return () => {
+          ws.close();
+        };
       };
   
-      return () => {
-        ws.close();
-      };
-    }, []);
+      if (!socket) {
+        connectWebSocket();
+      }
+    }, [socket, retryCount, maxRetries, initialRetryDelay, retryMultiplier]);
+  
+  
+  
+    
     const handleCodeInputChange = (newCode) => {
       setValue(newCode);
     };
@@ -173,14 +251,28 @@ export default function AssignmentView(props) {
       if (socket) {
         console.log("socket")
   
-        socket.send(JSON.stringify({ type: 'runCode', data: { code: value } }));
+        socket.send(JSON.stringify({ type: 'runCode', data: { code: editorRef.current.getValue(), language: assignment.language } }));
+      }else{
+        setMessage("no connection to server, try refreshing")
       }
     };
     function finishedEditing(){
-      //navigate to next module
+      navigate("/")
     }
+
+    useEffect(() => {
+      // This effect will run whenever `value` changes.
+      if (socket && testPassed ) {
+        if(uid !== 9){
+          updateUser(editorRef.current.getValue());
+        }else{
+          console.log("test user")
+        }
+        
+      }
+    }, [socket, testPassed]); // Depend on `value`, `socket`, and `testPassed`.
+    
   
-    const assignmentDescription = "use the variables in the editor to print out the sentence: 'In 2022 Aaron judge had an ops of 1.111 and an ops+ of 211.' You can recombine them in any way, but don't add any new text or numbers."
     
     return (
       <div>
@@ -199,8 +291,13 @@ export default function AssignmentView(props) {
             <PlayCircleIcon />
           </IconButton>
   
-        
-            <AceEditor
+          <Editor
+        height="60vh"
+        defaultLanguage={assignment.language}
+        defaultValue={assignment.startercode}
+        onMount={handleEditorDidMount}
+      />
+           {/* <AceEditor
               mode="python"
               theme="monokai"
               value={value}
@@ -219,7 +316,7 @@ export default function AssignmentView(props) {
                 showLineNumbers: true,
                 tabSize: 4,
               }}
-            />
+            /> */}
           
         </div>
         </Grid>
@@ -251,16 +348,17 @@ export default function AssignmentView(props) {
       {!submitB ? <CircularProgress />:
       <Button disabled={!beenRun} onClick={handleSubmitPress} style={{ margin: '20px' }} variant="contained">Submit</Button>
               }
-              <Link to="/programview" state={{course:course, module: next}}>
+              
              
-      <Button onClick={finishedEditing} color="success" style={{ margin: '20px' }} variant="contained">Next</Button>
-      </Link>
+      <Button onClick={finishedEditing} color="success" style={{ margin: '20px' }} variant="contained">Home</Button>
+     
       </div>
         </div>
   
         </Grid>
         </Grid>
-  
+  {!isSocket && <span>no server connection</span>}
+  {message}
         </div>
     );
 }

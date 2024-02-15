@@ -3,6 +3,7 @@ import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {   faLock, faHome, faPerson, } from '@fortawesome/free-solid-svg-icons';
 import { Nav, Navbar, Container,  Offcanvas } from "react-bootstrap"
+import { useNavigate } from 'react-router-dom';
 
 import { Button,  } from "@mui/material"
 
@@ -10,10 +11,13 @@ import { getAuth,  signOut  } from 'firebase/auth';
 
 import { Outlet } from "react-router-dom";
 export default function App() {
+
+  const navigate = useNavigate();
+
   const auth = getAuth();
  const sign_out = () => {
   signOut(auth).then(() => {
-    // Sign-out successful.
+    navigate("/signin")
   }).catch((error) => {
     // An error happened.
   });
@@ -21,7 +25,7 @@ export default function App() {
  
 
 
-  const expand = 'xxl';
+  const expand = 'lg';
   return (
     <div style={{ padding: "40px" }} className="outerdiv">
     <Navbar bg="dark" variant="dark" expand={expand} className="navbar fixed-top navbar-light bg-dark">
@@ -44,7 +48,7 @@ export default function App() {
              
              
             <Nav.Link href="/"><FontAwesomeIcon icon={faHome} className="mr-2"/>  &nbsp;Home</Nav.Link>
-              <Nav.Link href="/teacherview"><FontAwesomeIcon icon={faPerson} className="mr-2"/>  &nbsp;Account</Nav.Link>
+              
               <Nav.Link href="/"><FontAwesomeIcon icon={faLock} className="mr-2" />
               
             &nbsp;Change Password </Nav.Link> 

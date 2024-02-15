@@ -40,15 +40,13 @@ export default function InPageTextEdit(props) {
   `
   const exDescription = "The code should have two if statements one using '==' the other using '!='"
   const handleSubmitPress = () =>{
-    //replace with code message
-    const message = [{role: "system", content:"You are a helpful assistant helping a student learn to code."},
-    {role: "user", content: "you are helping a student learn to code you will be given some code and a description of what that code should contain. If the code matches the description respond with 'Good Job!'. If it does not match explain what need to be fixed. Don't give code that will exactly match the description."},
-    {role: "user", content: "Code:"+exCode+"Description:"+exDescription},
-    {role: "assistant", content: "Your code is not quite right. It should contain two if statements one using '=' one using '!=' you only have one if statement"},
-    {role: "user", content: "Code:"+value+"Description:"+props.description}
-  ]
-  setSubmitB(false)
-  getData(message)
+
+    if (socket) {
+      console.log("socket")
+
+      socket.send(JSON.stringify({ type: 'submit', data: { userCode: value, testCode: ""  } }));
+    }
+
   }
 
   async function getData(plan){

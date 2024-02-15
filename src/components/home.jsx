@@ -47,7 +47,7 @@ setUser(docSnap.data())
   return (
     <div className="home-page">
 
-      {role === "Student" && <CourseList/>}
+      {role === "Student" && <CourseList user={user} uid={uid}/>}
       {role === "Teacher" && <TeacherView user={user} uid={uid}/>}
   
     </div>

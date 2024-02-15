@@ -10,7 +10,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { db } from '../firebase-config';
 const AuthComponent = () => {
-    const [isSignUp, setIsSignUp] = useState(true); // true for sign up, false for sign in
+    const [isSignUp, setIsSignUp] = useState(false); // true for sign up, false for sign in
 //create the navigate object 
   const navigate = useNavigate();
 
